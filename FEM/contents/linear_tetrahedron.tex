@@ -1,0 +1,17 @@
+
+\chapter{FEM: linear, tetrahedron and barycentric coordinates}
+
+\section{Small deformation simulation}
+Small deformations $ \mathbf{u} \in \mathbb{R}^{3n} $ follow the equation
+
+\begin{equation}
+\mathbf{M}\ddot{\mathbf{u}}+\mathbf{D}\dot{\mathbf{u}}+\mathbf{K}(\mathbf{u})=\mathbf{f}_{\mathrm{ext}}(t)
+\end{equation}
+
+Replace $ \mathbf{f}_\mathrm{int}(\mathbf{u}_{t+\Delta t}) $ with $ \mathbf{M}(\mathbf{u}_t+\Delta \mathbf{u}) $ and add $ \mathbf{M}\mathbf{v}_t $ to both sides of equation \ref{eq: Implicit nolinear backward euler}, and notice that $ \Delta \mathbf{u} = \delta t \times \mathbf{v}_{t+\Delta t} $, we have
+
+\begin{equation} \label{Implicit linear backward euler}
+\left(\mathbf{M}+\Delta t\mathbf{D}+(\Delta t)^2\mathbf{K}\right)\mathbf{v}_{t+\Delta t} = \mathbf{M}\mathbf{v}_t + \Delta  t\left(\mathbf{f}_{\mathrm{ext}}-\mathbf{K}\mathbf{u}_t\right)
+\end{equation}
+
+After solving Equation \ref{Implicit linear backward euler} for $ \mathbf{v}_{t+\Delta t} $, we can calculate $ \Delta \mathbf{u} $ from Equation \ref{eq: Implicit nolinear backward euler}.

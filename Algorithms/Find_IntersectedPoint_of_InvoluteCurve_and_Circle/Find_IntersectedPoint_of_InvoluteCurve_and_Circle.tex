@@ -1,0 +1,82 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\begin{document}
+	
+	
+	\author{nuomizong}
+	\title{Find Intersected Point of Involute curve and a Specific Circle}
+	\date{19/06/2015}
+	\maketitle
+	
+	\newpage
+	
+	\section{Explanation}
+	Figure \ref{fig: involute curve definition} shows the principle of \textbf{Involute Curve}. In figure \ref{fig: involute curve}, \textbf{A} is the starting point. When $ |\mathrm{OA}| $ turns an anti-clockwise angle $ \theta $, the arc length of $ |\mathrm{AC}| $ should equal to the length of $ |\mathrm{CP}| $ according to the definition of \textbf{Involute Curve}. If Point P is also located on circle of radius r, then the turned angle $ \theta $ can be solved analytically.
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width = 0.5\textwidth]{involute_curve_definition}
+		\caption{Involute curve definition} \label{fig: involute curve definition}
+		\vspace{\baselineskip}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width = 0.5\textwidth]{involute_curve}
+		\caption{Involute } \label{fig: involute curve}
+		\vspace{\baselineskip}
+	\end{figure}
+	
+	\section{Algorithms}
+	After $ |OA| $ turns an anti-clockwise angle $ \theta $, so we have:
+	
+	\begin{equation}
+	|\mathrm{CA}| = s = r_b \theta
+	\end{equation}
+	
+	where $ r_b $ means Base Circle.
+	
+	Because Point C lies on Base Circle, there we can compute its coordinates:
+	
+	\begin{equation}
+		\begin{cases}
+		x_c = r_b \cos(\theta) \\
+		y_c = r_b \sin(\theta)
+		\end{cases}
+	\end{equation}
+	
+	Because $ |CA| = |CP| $, so the Point P can be calculated using:
+	
+	\begin{equation}
+		\begin{cases}
+			x_p = x_c + s \sin(\theta) \\
+			y_p = y_c - s \cos(\theta)
+		\end{cases}
+	\end{equation}
+	
+	As a result of Point P lies on another circle, so we have:
+	
+	\begin{equation}
+		x_p^2+y_p^2 = r^2
+	\end{equation}
+	
+	Solve all aforementioned equations, we conclude:
+	
+	\begin{equation}
+		\theta = \sqrt{(\dfrac{r}{r_b})^2-1}
+	\end{equation}
+	
+	Finally, Point P is determined via:
+	
+	\begin{equation}
+		\begin{cases}
+			x_p = r_b \cos(\theta)+r_b\theta \sin(\theta)\\
+			y_p = r_b \sin(\theta)-r_b\theta \cos(\theta)
+		\end{cases}
+	\end{equation}
+\end{document}

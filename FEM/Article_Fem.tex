@@ -1,0 +1,45 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+\documentclass[10pt,a4paper]{book}
+
+\input{D:/Git/softwareLearning/Latex/myStyle.tex}
+%\input{/Users/nuomizong/Dropbox/myStyle.tex}
+
+\begin{document}
+
+\author{Nuomizong}
+\title{FEM}
+\date{June 9th, 2016}
+
+\maketitle
+\newpage
+
+\setcounter{page}{1}
+\tableofcontents
+\newpage
+%\eqref{}
+\setcounter{page}{1}
+
+% --------- basic definitions ---------
+\include{contents/Chapter_strain}
+
+% --------- Solve. ---------
+%\include{contents/nonlinear}
+
+% --------- Post processing. ---------
+
+\include{contents/Chapter_stress}
+
+
+%\include{contents/tangent_stiffness_matrix}
+
+\include{contents/Plate}
+\include{contents/space_beam}
+
+\include{contents/failure_theories}
+
+% --------- Addendum. ---------
+%\include{contents/Chapter_shapeFunction}
+%\include{contents/linearTetrahedron}
+
+\end{document}
+

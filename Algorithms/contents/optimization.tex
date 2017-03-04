@@ -1,0 +1,18 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\chapter{Optimization}
+
+\section{fmincon}
+\subsection{options}
+\begin{lstlisting}
+options = optimset('GradObj', 'on', 'Algorithm', 'interior-point', ...
+'Display', 'iter', 'MaxIter', 500000, 'MaxFunEvals',10000000,  'Diagnostics', 'on',...
+'TolFun', 1.0e-6, 'TolX', 1.0e-6, 'TolCon', 1.0e-6);
+\end{lstlisting}
+
+\subsection{test volume function}
+Set all constraints except lower bounds and upper bounds to [], and run \textbf{fmincon} to test whether all variables converge to lower bounds.
+
+\begin{lstlisting}[language=matlab]
+[x,fval,exitflag,output] = fmincon(@(x_br)Rib_Vol_m(x_br), x0, [], [], [], [], lx, ux, [], options);
+\end{lstlisting}

@@ -1,0 +1,35 @@
+# use glob syntax.
+syntax: glob
+
+build/
+debug/
+lib/
+release/
+reading/
+
+# additional file types.
+*~
+.DS_Store
+
+# visual studio compuled files.
+*.pdb
+
+*.sdf
+
+*.suo
+
+*.ilk
+
+*.log
+
+*.tlog
+
+# matlab compiled files.
+*.mexw64
+
+# latex temp files.
+*.aux
+*.out
+*.gz
+*.toc
+*.log
