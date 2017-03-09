@@ -105,25 +105,7 @@ let shape parameters at left side (square) of ribs is $ b_{1i}, h_{1i}, b_{2i}, 
 \end{split}
 \end{equation}
 
-\section{Area and second moments of any polygon}
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.4\linewidth]{Figures/Moment_of_area_of_a_polygon}
-	\caption{Numbering of a polygon}
-	\label{fig:numberingofapolygon}
-\end{figure}
-
-The second moment of area for any simple polygon on the XY-plane can be computed in general by summing contributions from each segment of the polygon. A polygon is assumed to have $ n $ vertices, numbered in counter-clockwise fashion. If polygon vertices are numbered clockwise, returned values will be negative, but absolute values will be correct.
-
-\begin{align*}
-A &= \frac{1}{2} \sum_{i=1}^{n} (x_i y_{i+1} - x_{i+1} y_i) \\
-I_{x} &= {\frac {1}{12}}\sum_{i=1}^{n}(y_{i}^{2}+y_{i}y_{i+1}+y_{i+1}^{2})(x_{i}y_{i+1}-x_{i+1}y_{i}) \\
-I_{y} &= {\frac {1}{12}}\sum _{i=1}^{n}(x_{i}^{2}+x_{i}x_{i+1}+x_{i+1}^{2})(x_{i}y_{i+1}-x_{i+1}y_{i})
-\end{align*}
-
-where  $ x_{i},y_{i} $ are the coordinates of the $ i $-th polygon vertex, for $ 1\leq i\leq n $. Also, $ x_{n+1},y_{n+1} $ are assumed to be equal to the coordinates of the first vertex, i.e., $ x_{n+1}=x_{1} $ and $ y_{n+1}=y_{1} $.
-
-\subsection{equations for a triangle}
+\section{equations for a triangle}
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.7\linewidth, angle=-90]{Figures/areaMomentsForTriangle}
@@ -146,3 +128,82 @@ I_z &= \int_{y_1}^{y_3}(z_3-z_1) y^2 dz - I_{z_1} - I_{z_2} - I_{z_3}
 \end{align*}
 
 The results obtained by this exact equations is euqal to the results from above section. see example in \textcolor{red}{Run\_anyPolygon.m}
+
+\section{Area and second moments of any polygon}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.4\linewidth]{Figures/Moment_of_area_of_a_polygon}
+	\caption{Numbering of a polygon}
+	\label{fig:numberingofapolygon}
+\end{figure}
+
+The second moment of area for any simple polygon on the XY-plane can be computed in general by summing contributions from each segment of the polygon. A polygon is assumed to have $ n $ vertices, numbered in counter-clockwise fashion. If polygon vertices are numbered clockwise, returned values will be negative, but absolute values will be correct.
+
+\begin{align*}
+	A &= \frac{1}{2} \sum_{i=1}^{n} (x_i y_{i+1} - x_{i+1} y_i) \\
+	I_{x} &= {\frac {1}{12}}\sum_{i=1}^{n}(y_{i}^{2}+y_{i}y_{i+1}+y_{i+1}^{2})(x_{i}y_{i+1}-x_{i+1}y_{i}) \\
+	I_{y} &= {\frac {1}{12}}\sum _{i=1}^{n}(x_{i}^{2}+x_{i}x_{i+1}+x_{i+1}^{2})(x_{i}y_{i+1}-x_{i+1}y_{i})
+\end{align*}
+
+where  $ x_{i},y_{i} $ are the coordinates of the $ i $-th polygon vertex, for $ 1\leq i\leq n $. Also, $ x_{n+1},y_{n+1} $ are assumed to be equal to the coordinates of the first vertex, i.e., $ x_{n+1}=x_{1} $ and $ y_{n+1}=y_{1} $.
+
+\section{Beam volume with arbitrary shape}
+
+\subsection{area and derivations}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.3\linewidth]{Figures/beamVol_wholeArea}
+\caption{whole area}
+\label{fig:beamvolwholearea}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.3\linewidth]{Figures/beamVol_twoParts}
+\caption{area in two parts}
+\label{fig:beamvoltwoparts}
+\end{figure}
+
+For  shape in figure \ref{fig:beamvolwholearea}, the area and derivations can be expressed as:
+
+\begin{equation} \label{eq: area and area derivarions of beam}
+\begin{split}
+A &= \frac{a+b}{2} l \\
+\frac{\partial A}{\partial a} &= \frac{b}{2} l \\
+\frac{\partial A}{\partial b} &= \frac{a}{2} l \\
+\end{split}
+\end{equation}
+
+If figure \ref{fig:beamvolwholearea} is divided into two parts, then eq \ref{eq: area and area derivarions of beam} can be re-written as:
+
+\begin{align*}
+	\frac{\partial A_1}{\partial a} = \frac{bl}{8} \\
+	\frac{\partial A_1}{\partial b} = \frac{3al}{8} \\
+	\frac{\partial A_2}{\partial a} = \frac{3bl}{8} \\
+	\frac{\partial A_2}{\partial b} = \frac{al}{8}
+\end{align*}
+
+\begin{align*}
+	A &= A_1 + A_2 = \frac{3a+b}{4} \frac{l}{2} + \frac{a+3b}{4} \frac{l}{2} = \frac{a+b}{2} l \\
+	\frac{\partial A}{\partial a} &= \frac{\partial A_1}{\partial a} + \frac{\partial A_2}{\partial a} = \frac{bl}{8} + \frac{3bl}{8} = \frac{b}{2} l \\
+	\frac{\partial A}{\partial b} &=\frac{\partial A_1}{\partial b} + \frac{\partial A_2}{\partial b} = \frac{3al}{8} + \frac{al}{8} = \frac{a}{2} l
+\end{align*}
+
+\subsection{volume of beam}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{Figures/beamVol_divisions}
+\caption{divisions of volume}
+\label{fig: divisions of volume}
+\end{figure}
+
+For beams like in figure \ref{fig: divisions of volume}, the volume is divided into several parts.
+
+If the cross-section of the middle of each part can be expressed as $ s_i~~~i=1 \cdots m $:
+
+\begin{align*}\label{key}
+\mathrm{vol} &= \mathrm{vol}_1 + \mathrm{vol}_2 + ... + \mathrm{vol}_n \\
+\frac{\partial \mathrm{vol}}{\partial s_j} &= \sum_{i=1}^{n} \frac{\partial \mathrm{vol}_i}{\partial s_j} ~~~ i = 1,2, \cdots,n, j = 1,2,\cdots,m\\
+\end{align*}
+
+The detailed example is in \lstinline{"EllipseT_ComputeAreaAndDerivations.m"}
