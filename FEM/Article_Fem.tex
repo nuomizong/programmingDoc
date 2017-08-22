@@ -1,7 +1,7 @@
 % !Mode:: "TeX:UTF-8"	% read in as utf8 file.
 \documentclass[10pt,a4paper]{book}
 
-\input{D:/Git/softwareLearning/Latex/myStyle.tex}
+\input{D:/Research/softwareLearning/Latex/myStyle.tex}
 %\input{/Users/nuomizong/Dropbox/myStyle.tex}
 
 \begin{document}
@@ -17,28 +17,35 @@
 \tableofcontents
 \newpage
 %\eqref{}
-\setcounter{page}{1}
+%\setcounter{page}{1}
 
 % --------- basic definitions ---------
-\include{contents/Chapter_strain}
+%\input{body/Chapter_strain}
 
 % --------- Solve. ---------
-%\include{contents/nonlinear}
+%\include{body/nonlinear}
 
-% --------- Post processing. ---------
+%------------- Common --------------
+%\input{body/Chapter_stress}
+%\input{body/failure_theories}
 
-\include{contents/Chapter_stress}
+%\include{body/tangent_stiffness_matrix}
 
-%\include{contents/tangent_stiffness_matrix}
-
-\include{contents/Plate}
-\include{contents/space_beam}
-
-\include{contents/failure_theories}
 
 % --------- Addendum. ---------
-%\include{contents/Chapter_shapeFunction}
-%\include{contents/linearTetrahedron}
+%\input{body/Chapter_shapeFunction}c
+%\input{body/linearTetrahedron}
+
+%------------- Beam --------------
+% Beam
+%\input{body/beam}
+
+%------------- Plate --------------
+\input{body/plate}
+
+%------------- stiffened plate --------------
+%\input{body/stiffened_plate}
+
 
 \end{document}
 

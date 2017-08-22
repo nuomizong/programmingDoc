@@ -1,0 +1,213 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\section{Plate Computation}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/plate3_def}
+\caption{Plate3 definition}
+\label{fig:plate3def}
+\end{figure}
+
+In fig. \ref{fig:plate3def} three nodes defining the triangle are: $ p_i = (x_i, y_i, z_i), p_j = (x_j, y_j, z_j),  p_m = (x_m, y_m, z_m),  $
+
+\subsection{Plate transform}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\linewidth]{figure/plate_transform}
+\caption{plate transform}
+\label{fig:platetransform}
+\end{figure}
+
+\begin{lstlisting}[language=c++]
+void Plate3::Compute_Transform(Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen::Vector3d p3, Eigen::Matrix3d &T, Eigen::Matrix3d &xel)
+// From <Aalborg_Univ_Plates_and_Shells.pdf> p41
+// there is slightly different as I use original as reference
+// while in the pdf it uses p1 as reference.
+// the three nodes are ordered as(i, j, k)
+// the x axis is aligned with direction of i->j
+{
+	T.col(0) = p2 - p1;
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << T.col(0) << std::endl;
+#endif
+	Eigen::Vector3d v2_t = p3 - p1;
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << v2_t << std::endl;
+#endif
+	T.col(2) = T.col(0).cross(v2_t);
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << T.col(2) << std::endl;
+#endif
+	T.col(1) = T.col(2).cross(T.col(0));
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << T.col(1) << std::endl;
+#endif
+
+	T.col(0).normalize();
+	T.col(1).normalize();
+	T.col(2).normalize();
+	
+	/*xel.row(0).setZero();
+	xel.row(1) = p2 - p1;
+	xel.row(2) = p3 - p1;*/
+	
+	xel.row(0) = p1;
+	xel.row(1) = p2;
+	xel.row(2) = p3;
+	
+	xel *= T;
+
+#if defined(USE_EIGEN) && defined(USE_DEBUG_RPT)
+	std::FILE *rptFile = std::fopen("test.rpt", "a");
+	
+	std::fprintf(rptFile, "---- plate transform matrix ----\n");
+	std::fprintf(rptFile, "p1: (%g, %g %g), P2: (%g, %g, %g), p3:(%g, %g, %g)\n", p1[0], p1[1], p1[2], p2[0], p2[1], p2[2], p3[0], p3[1], p3[2]);
+	
+	std::fclose(rptFile);
+#endif
+}
+\end{lstlisting}
+
+\subsection{Membrane}
+The shape function is defined as:
+\begin{equation}
+\begin{split}
+u &= N_i u_i + N_j u_j + N_m u_m \\
+v &= N_i v_i + N_j v_j +N_m v_m
+\end{split}
+\end{equation}
+
+where 
+\begin{equation}\label{key}
+N_i = \frac{1}{2\Delta} ( a_i + b_i+c_i ) ~~~ (i,j,m)
+\end{equation}
+
+and
+\begin{equation}\label{key}
+\begin{split}
+a_i &= x_j y_m-x_m y_j \\
+b_i &= y_j - ym ~~~~~(i,j,m)\\
+c_i &= x_m-x_j \\
+\Delta &= \frac{1}{2} (b_i c_j - b_j c_i)
+\end{split}
+\end{equation}
+
+so the $ \mathbf{B} $ can be computed as:
+\begin{equation}\label{key}
+\epsilon = \mathbf{B} \delta^e = \frac{1}{2\Delta} \begin{bmatrix}
+b_i & 0 & b_j & 0 & b_m & 0 \\ 
+0 & c_i & 0 & c_j & 0 & c_m \\ 
+c_i & b_i & c_j & b_j & c_m & b_m
+\end{bmatrix} \begin{pmatrix}
+u_i \\ 
+v_i \\ 
+u_j \\ 
+v_j \\ 
+u_m \\ 
+v_m
+\end{pmatrix} 
+\end{equation}
+
+\begin{CJK*}{UTF8}{song}
+// see$ < $结构分析的有限元法与MATLAB程序设计.pdf$ > $ p73
+\end{CJK*}
+\begin{lstlisting}[language=c++]
+void Plate3::Compute_Bm(double xi, double yi, double xj, double yj, double xm, double ym, double &A, Eigen::Matrix<double,3,6> &Bm)
+// CST
+{
+	double ai = xj*ym - xm*yj, bi = yj - ym, ci = xm - xj;
+	double aj = xm*yi - xi*ym, bj = ym - yi, cj = xi - xm;
+	double am = xi*yj - xj*yi, bm = yi - yj, cm = xj - xi;
+	
+	// surface area.
+	A = 0.5*(bi*cj - bj*ci);
+	
+	// Ni = (ai + bi x + ci y) / (2 delta)   (i, j, m)
+	// ai = xjym - xmyj
+	// bi = yj - ym
+	// ci = xm - xj
+	// B = [Nix, 0, Njx, 0, Nmx, 0;
+	//		0, Niy, 0, Njy, 0, Njy;
+	//		Niy, Nix, Njy, Njx, Nmy, Nmx];
+	
+	Bm << bi, 0, bj, 0, bm, 0,
+		0, ci, 0, cj, 0, cm,
+		ci, bi, cj, bj, cm, bm;
+		
+	Bm *= 0.5 / A;
+}
+\end{lstlisting}
+
+\subsection{Bending}
+\begin{CJK*}{UTF8}{song}
+	// see $ < $结构分析的有限元法与MATLAB程序设计.pdf$ > $ p177
+\end{CJK*}
+
+
+The displacement mode is assumed as:
+\begin{equation}
+\begin{split}
+w &= a_1 L_i + a_2 L_j +a_3 L_m + a_4 L_j L_m + a_5L_m L_i + a_6 L_i L_j\\
+ & + a_7 (L_jL_m^2-L_m L_j^2) + a_8(L_mL_i^2-L_iL_m^2)+a_9(L_iL_j^2-L_jL_i^2)
+\end{split}
+\end{equation}
+
+The $ \mathbf{B} $ matrix for bending is computed based on above pdf file.
+\begin{lstlisting}[language=c++]
+void Plate3::Compute_Bb(double xi, double yi, double xj, double yj, double xm, double ym, Eigen::Vector3d L, Eigen::Matrix<double,3,9> &Bb)
+
+{
+	double ai = xj *ym - xm *yj;
+	double aj = xm *yi - xi *ym;
+	double am = xi *yj - xj *yi;
+	double bi = yj - ym;
+	double bj = ym - yi;
+	double bm = yi - yj;
+	double ci = -(xj - xm);
+	double cj = -(xm - xi);
+	double cm = -(xi - xj);
+	
+	// area of a triangular element.
+	double delta2 = ai + aj + am;
+	Eigen::Matrix3d T;
+	T << bi*bi, bj*bj, 2.0 * bi*bj,
+	ci*ci, cj*cj, 2.0 * ci*cj,
+	2.0 * bi*ci, 2.0 * bj*cj, 2.0 * (bi*cj + bj*ci);
+	
+	double Li = L[0], Lj = L[1], Lm = L[2];
+	
+	Eigen::MatrixXd P(3, 9);
+	P.row(0) << -4.0 * Lj - 12 * Li + 6.0,
+	-6.0 * bj*Li + 2.0 * bj - 3.0 * bj*Lj - bm*Lj,
+	2.0 * cj - 6.0 * cj*Li - 3.0 * cj*Lj - cm*Lj,
+	-4.0 * Lj,
+	(-bm + bi)*Lj,
+	-(cm - ci)*Lj,
+	-6.0 + 12.0 * Li + 8.0 * Lj,
+	bi*Lj - 6.0 * bj*Li + 4.0 * bj - 3.0 * bj*Lj,
+	ci*Lj + 4.0 * cj - 6.0 * cj*Li - 3.0 * cj*Lj;
+	
+	// 
+	P.row(1) << -4.0 * Li,
+	-(bj - bm)*Li,
+	(-cj + cm)*Li,
+	6.0 - 4.0* Li - 12.0 * Lj,
+	bm*Li + 6.0 * bi*Lj - 2.0 * bi + 3.0 * bi*Li,
+	cm*Li + 6.0 * ci*Lj - 2.0 * ci + 3.0 * ci*Li,
+	8.0 * Li - 6.0 + 12.0 * Lj,
+	6.0 * bi*Lj - 4.0 * bi + 3.0 * bi*Li - bj*Li,
+	6.0 * ci*Lj - 4.0 * ci + 3.0 * ci*Li - cj*Li;
+	
+	P.row(2) << -4.0 * Li - 4.0 * Lj + 2.0,
+	-3.0 * bj*Li - bm*Li + 1.0 / 2.0 * bj - bj*Lj - 1.0 / 2.0 * bm + bm*Lj,
+	-3.0 * cj*Li - cm*Li + 1.0 / 2.0 * cj - cj*Lj - 1.0 / 2.0 * cm + cm*Lj,
+	-4.0 * Li - 4 * Lj + 2,
+	bm*Lj + 3.0 * bi*Lj + 1.0 / 2.0 * bm - bm*Li - 1.0 / 2.0 * bi + bi*Li,
+	cm*Lj + 3.0 * ci*Lj + 1.0 / 2.0 * cm - cm*Li - 1.0 / 2.0 * ci + ci*Li,
+	-4.0 + 8.0 * Li + 8 * Lj,
+	3.0 * bi*Lj - 3.0 / 2.0 * bi + bi*Li - 3.0 * bj*Li + 3.0 / 2.0 * bj - bj*Lj,
+	3.0 * ci*Lj - 3.0 / 2.0 * ci + ci*Li - 3.0 * cj*Li + 3.0 / 2.0 * cj - cj*Lj;
+	
+	Bb = -1.0 / delta2 / delta2 * T*P;
+}
+\end{lstlisting}

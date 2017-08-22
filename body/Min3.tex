@@ -1,0 +1,117 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\section{Min3}
+\setcounter{MaxMatrixCols}{20}
+
+\begin{multline*}
+T_b = \left[ \begin{matrix}
+\cos^2(\phi) & 0.5 \sin(2 \phi) & 0.5 \sin(2 \phi) & \sin^2(\phi) & 0 & 0 \\ 
+-0.5 \sin(2 \phi) & -\sin^2(\phi) & \cos^2(\phi) & 0.5 \sin(2 \phi) & 0 & 0 \\ 
+0 & 0 & 0 & 0 & \cos(\phi) & \sin(\phi) 
+\end{matrix} \right. \\
+\left. \begin{matrix}
+\hat{z} 0.5 \sin(2 \phi) & \hat{z} \sin^2(\phi) & \hat{z} \cos^2(\phi) & \hat{z} 0.5 \sin(2 \phi) \\
+\hat{z} \cos^2(\phi) & \hat{z} 0.5 \sin(2 \phi) & -\hat{z} 0.5 \sin(2 \phi) & -\hat{z} \sin^2(\phi) \\
+\tilde{y''} 0.5 \sin(2 \phi) & \tilde{y''} \sin^2(\phi) & \tilde{y''} \cos^2(\phi) & \tilde{y''} 0.5 \sin(2 \phi)
+\end{matrix} \right]
+\end{multline*}
+
+\begin{equation}\label{key}
+\hat{B_b} N_p'' = \begin{bmatrix}
+\frac{\partial \xi_1}{\partial x''} & 0 & 0 & \frac{\partial \xi_2}{\partial x''} & 0 & 0 & \frac{\partial \xi_3}{\partial x''} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+\frac{\partial \xi_1}{\partial y''} & 0 & 0 & \frac{\partial \xi_2}{\partial y''} & 0 & 0 & \frac{\partial \xi_3}{\partial y''} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0  \\ 
+0 & \frac{\partial \xi_1}{\partial x''} & 0 & 0 & \frac{\partial \xi_2}{\partial x''} & 0 & 0 & \frac{\partial \xi_3}{\partial x''} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\ 
+0 & \frac{\partial \xi_1}{\partial y''} & 0 & 0 & \frac{\partial \xi_2}{\partial y''} & 0 & 0 & \frac{\partial \xi_3}{\partial y''} & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{\partial \xi_1}{\partial x''} & \frac{\partial L_1}{\partial x''} & \frac{\partial M_1}{\partial x''} & \frac{\partial \xi_2}{\partial x''} & \frac{\partial L_2}{\partial x''} & \frac{\partial M_2}{\partial x''} & \frac{\partial \xi_3}{\partial x''} & \frac{\partial L_3}{\partial x''} & \frac{\partial M_3}{\partial x''}  \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{\partial \xi_1}{\partial y''} & \frac{\partial L_1}{\partial y''} & \frac{\partial M_1}{\partial y''} & \frac{\partial \xi_2}{\partial y''} & \frac{\partial L_2}{\partial y''} & \frac{\partial M_2}{\partial y''} & \frac{\partial \xi_3}{\partial y''} & \frac{\partial L_3}{\partial y''} & \frac{\partial M_3}{\partial y''} \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{\partial \xi_1}{\partial x''} & 0 & 0 & \frac{\partial \xi_2}{\partial x''} & 0 & 0 & \frac{\partial \xi_3}{\partial x''} & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \frac{\partial \xi_1}{\partial y''} & 0 & 0 & \frac{\partial \xi_2}{\partial y''} & 0 & 0 & \frac{\partial \xi_3}{\partial y''} & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+\end{bmatrix} 
+\end{equation}
+
+\begin{multline*}
+T_b \hat{B_b} N_p'' = \left[\begin{matrix}
+N_{11} & N_{12} & 0 & N_{14} & N_{15} & 0 & N_{17} & N_{18} & 0 & 0 \\
+N_{21} & N_{22} & 0 & N_{24} & N_{25} & 0 & N_{27} & N_{28} & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+\end{matrix} \right. \\
+\left. \begin{matrix}
+\hat{z} N_{111} & 0 & 0 & \hat{z} N_{114} & 0 & 0 & \hat{z} N_{117} & 0 \\ 
+\hat{z} N_{211} & 0 & 0 & \hat{z} N_{214} & 0 & 0 & \hat{z} N_{217} & 0 \\ 
+N_{310} & N_{311a} + \tilde{y}'' N_{311b} & N_{312} & N_{313} & N_{314a} + \tilde{y}'' N_{314b} & N_{315} & N_{316} & N_{317a} + \tilde{y}'' N_{317b} & N_{318}
+\end{matrix}\right]
+\end{multline*}
+
+\begin{equation*}
+\begin{pmatrix}
+N_{11}	= \left( \frac{\partial \xi_1}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_1}{\partial x''} \cos^2(\phi) & N_{21}	= - \left( \frac{\partial \xi_1}{\partial x''} \sin(2 \phi)\right) /2 - \frac{\partial \xi_1}{\partial y''} \sin^2(\phi) & N_{310}	= \frac{\partial \xi_1}{\partial x''} \cos(\phi) + \frac{\partial \xi_1}{\partial y''} \sin(\phi)\\
+N_{12}	= \left( \frac{\partial \xi_1}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_1}{\partial y''} \sin^2(\phi) & N_{22}	= \left( \frac{\partial \xi_1}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_1}{\partial x''} \cos^2(\phi) & N_{311a} = \frac{\partial L_1}{\partial x''} \cos(\phi) + \frac{\partial L_1}{\partial y''} \sin(\phi) \\
+N_{14}	= \left( \frac{\partial \xi_2}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_2}{\partial x''} \cos^2(\phi) & N_{24}	= - \left( \frac{\partial \xi_2}{\partial x''} \sin(2 \phi)\right) /2 - \frac{\partial \xi_2}{\partial y''} \sin^2(\phi) & N_{311b} = \left( \frac{\partial \xi_1}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_1}{\partial y''} \sin^2(\phi)\\
+N_{15}	= \left( \frac{\partial \xi_2}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_2}{\partial y''} \sin^2(\phi) & N_{25}	= \left( \frac{\partial \xi_2}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_2}{\partial x''} \cos^2(\phi) & N_{312}	= \frac{\partial M_1}{\partial x''} \cos(\phi) + \frac{\partial M_1}{\partial y''} \sin(\phi)\\
+N_{17}	= \left( \frac{\partial \xi_3}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_3}{\partial x''} \cos^2(\phi) & N_{27}	= - \left( \frac{\partial \xi_3}{\partial x''} \sin(2 \phi)\right) /2 - \frac{\partial \xi_3}{\partial y''} \sin^2(\phi) & N_{313} = \frac{\partial \xi_2}{\partial x''} \cos(\phi) + \frac{\partial \xi_2}{\partial y''} \sin(\phi)\\
+N_{18} = \left( \frac{\partial \xi_3}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_3}{\partial y''} \sin^2(\phi) & N_{28}	= \left( \frac{\partial \xi_3}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_3}{\partial x''} \cos^2(\phi) & N_{314a} = \frac{\partial L_2}{\partial x''} \cos(\phi) + \frac{\partial L_2}{\partial y''} \sin(\phi)\\
+N_{111}	= \left( \frac{\partial \xi_1}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_1}{\partial y''} \sin^2(\phi) & N_{28}	= \left( \frac{\partial \xi_3}{\partial y''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_3}{\partial x''} \cos^2(\phi) & N_{314b} = \left( \frac{\partial \xi_2}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_2}{\partial y''} \sin^2(\phi)\\
+N_{114}	= \left( \frac{\partial \xi_2}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_2}{\partial y''} \sin^2(\phi) & N_{214}	= \frac{\partial \xi_2}{\partial x''} \cos^2(\phi) + \left( \frac{\partial \xi_2}{\partial y''} \sin(2 \phi)\right) /2 & N_{315}	= \frac{\partial M_2}{\partial x''} \cos(\phi) + \frac{\partial M_2}{\partial y''} \sin(\phi)\\
+N_{117}	= \left( \frac{\partial \xi_3}{\partial x''} \sin(2 \phi)\right) /2 + \frac{\partial \xi_3}{\partial y''} \sin^2(\phi) & N_{217}	= \frac{\partial \xi_3}{\partial x''} \cos^2(\phi) + \left( \frac{\partial \xi_3}{\partial y''} \sin(2 \phi)\right) /2 & N_{316}	= \frac{\partial \xi_3}{\partial x''} \cos(\phi) + \frac{\partial \xi_3}{\partial y''} \sin(\phi)\\
+& & N_{317a} = \frac{\partial L_3}{\partial x''} \cos(\phi) + \frac{\partial L_3}{\partial y''} \sin(\phi)\\
+& & N_{317b} = \left( \frac{\partial \xi_3}{\partial x''}\sin(2 \phi)\right) /2 + \frac{\partial \xi_3}{\partial y''} \sin^2(\phi)\\
+& & N_{318} = \frac{\partial M_3}{\partial x''} \cos(\phi) + \frac{\partial M_3}{\partial y''} \sin(\phi)
+\end{pmatrix}
+\end{equation*}
+
+
+\begin{equation}\label{key}
+K_{bl} = \int_v N_p^{''^T} \hat{B_b}^T T_b^T D_b T_b \hat{B_b} N_p'' dv = \int_v K_{blij} dv~~i,j = 1,2,\cdots,18
+\end{equation}
+
+\begin{align*}
+K_{bl11} &= \lambda N_{11}^2 + G \bar{K} N_{21}^2 \\
+K_{bl12} &= N_{11}N_{12}\lambda + G\bar{K}N_{21}N_{22}\\
+K_{bl13} &= 0\\
+K_{bl14} &= N_{11}N_{14}\lambda + G\bar{K}N_{21}N_{24}\\
+K_{bl15} &= N_{11}N_{15}\lambda + G\bar{K}N_{21}N_{25} \\
+K_{bl16} &= 0 \\
+K_{bl17} &= N_{11}N_{17}\lambda + G\bar{K}N_{21}N_{27} \\
+K_{bl18} &= N_{11}N_{18}\lambda + G\bar{K}N_{21}N_{28} \\
+K_{bl19} &= 0 \\
+K_{bl110} &= 0\\
+K_{bl111} &= N_{11}N_{111}\lambda\hat{z} + G\bar{K}N_{21}N_{211}\hat{z} \\
+K_{bl112} &= 0 \\
+K_{bl113} &= 0 \\
+K_{bl114} &= N_{11}N_{114}\lambda\hat{z} + G\bar{K}N_{21}N_{214}\hat{z} \\
+K_{bl115} &= 0 \\
+K_{bl116} &= 0 \\
+K_{bl117} &= N_{11}N_{117}\lambda\hat{z} + G\bar{K}N_{21}N_{2{17}}\hat{z} \\
+K_{bl118} &= 0; \\
+\vdots
+\end{align*}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/min3_stiffener}
+\caption{}
+\label{fig:min3stiffener}
+\end{figure}
+
+
+for rectangle case $ \mathrm{plate~thickness}~h_p~\mathrm{and~stiffener } (b_s, h_s) $, the area moments are:
+\begin{align*}
+S_y &= \iint_{-h_s-\frac{h_p}{2}}^{\frac{-h_p}{2}} z dA = \iint_{-h_s-\frac{h_p}{2}}^{\frac{-h_p}{2}} z b_s dz = \frac{b_s}{2} \left( \left(\frac{h_p}{2}\right) ^2 - \left( h_s+\frac{h_p}{2}\right) ^2\right) (\mathrm{should~be~positive})\\
+S_z &= \iint_{-\frac{b_s}{2}}^{\frac{b_s}{2}} y dA = \iint_{-\frac{b_s}{2}}^{\frac{b_s}{2}} y h_s dy = 0\\
+I_y &= \iint_{-h_s-\frac{h_p}{2}}^{\frac{-h_p}{2}} z^2 dA = \iint_{-h_s-\frac{h_p}{2}}^{\frac{-h_p}{2}} z^2 b_s dz = \frac{b_s}{3} \left( \left( h_s+\frac{h_p}{2}\right)^3 - \left( \frac{h_p}{2}\right)^3   \right) \\
+I_z &= \iint_{\frac{-b_s}{2}}^{\frac{b_s}{2}} y^2 dA = \iint_{\frac{-b_s}{2}}^{\frac{b_s}{2}} y^2 h_s dy = \frac{h_s}{12} b_s^3 \\ 
+J &s= \iint r^2 dA = \iint \left( y^2+z^2\right)  dA = I_y + I_z
+\end{align*}
+
+\begin{align*}
+\int_v dv &= \int_l \left( \iint_{area} dA \right) dx = A_s \int_l dx \\
+\int_v \hat{z} dv &= \int_l \left( \iint_{area} \hat{z} dA \right) dx = \int_l \left( \iint_{area} \hat{z} dA \right) dx = S_y \int_l dx   \\
+\int_v \hat{z}^2 dv &= \int_l \left( \iint_{area} \hat{z}^2 dA \right) dx = \int_l \left( \iint_{area} \hat{z}^2 dA \right) dx = I_y \int_l dx \\
+\int_v \tilde{y}'' dv &= \int_l \left( \iint_{area} \tilde{y}'' dA \right) dx = \int_l \left( \iint_{area} \tilde{y}'' dA \right) dx = S_z \int_l dx \\
+\int_v \tilde{y}''^2 dv &= \int_l \left( \iint_{area} \tilde{y}''^2 dA \right) dx  = \int_l \left( \iint_{area} \tilde{y}''^2 dA \right) dx = I_z \int_l dx   
+\end{align*}
+
+The $ \int_l dx $ is solved by two points Gaussian quadrature.
+

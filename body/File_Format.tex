@@ -1,0 +1,64 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\section{File format}
+
+\subsection{Force File}
+\begin{lstlisting}[language=python]
+# use Maya ExportSelectedVerts mel to export selected vetex indexes in Maya
+# file extension: <name>.force
+# <vi> is a integer meaning ith node of mesh.
+# <fix> is x component of force at ith node.
+# total: <number of forces>
+<no.> <v1> <f1x> <f1y> <f1z>
+...
+<no.> <vn> <fnx> <fny> <fnz>
+\end{lstlisting}
+\subsection{Boundary File}
+\begin{lstlisting}[language=python]
+# use Maya ExportSelectedVerts mel to export selected vetex indexes in Maya
+# file extension: <name>.bou
+# <vi> is a integer meaning ith node of mesh.
+# total: <number of bous>
+<no.> <v1>
+...
+<no.> <vn>
+\end{lstlisting}
+\subsection{Ribs Definition}
+There are two kinds of rib input: \textbf{Edge aligned ribs} or \textbf{General ribs}.
+\subsubsection{Edge aligned ribs}
+\begin{lstlisting}[language=python]
+# use Maya ExportSelectedEdges mel to export selected edges in Maya
+# file extension: <name>.edge
+# <eli> is a integer meaning ith node of mesh.
+# total: <number of edges>
+<no.> <e11> <e12>
+...
+<no.> <en1> <en2>
+\end{lstlisting}
+\subsubsection{General ribs}
+\begin{lstlisting}[language=python]
+# file extension: <name>.rib
+# <faceId> is an integer meaning the face a rib belongs to.
+# <pt1> <pt2> are starting and ending points of the rib in the face.
+# total: <number of ribs>
+<no.> <faceId> <pt1x> <pt1y> <pt1z> <pt2x> <pt2y> <pt2z>
+...
+<no.> <faceId> <pt1x> <pt1y> <pt1z> <pt2x> <pt2y> <pt2z>
+\end{lstlisting}	
+
+
+\section{Cross section}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.2\linewidth, angle=-90]{crossSection_Rect}
+	\caption{ Rectangle Cross section}
+	\label{fig:crosssectionrect}
+\end{figure}
+
+\section{Explanation for different mises}
+as the material are pushing far away from rib's center, the normal way of computing as:
+\begin{equation}
+\sigma = D B \delta^e
+\end{equation}
+
+is not acceptable any more. The far end of material must have much larger stress than near end!

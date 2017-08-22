@@ -1,0 +1,547 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\section{Rib computation}
+%\iffalse
+\subsection{Rectangle Cross-section}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\linewidth]{figure/Rectangle_Abaqus}
+	\caption{Rectangle defined in Abaqus}
+	\label{fig:rectangleabaqus}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figure/rectangle_area_momentum}
+	\caption{area momentum of rectangle cross-section}
+	\label{fig:rectangleareamomentum}
+\end{figure}
+
+Area Momentum of Rectangle cross-section:
+\begin{align*}
+I_y &= \iint_{\frac{-d_r}{2}}^{\frac{d_r}{2}} z^2 dA = \iint_{\frac{-d_r}{2}}^{\frac{d_r}{2}} z^2 b_r dz = \frac{b_r}{12} d_r^3 \\
+I_z &= \iint_{\frac{-b_r}{2}}^{\frac{b_r}{2}} y^2 dA = \iint_{\frac{-b_r}{2}}^{\frac{b_r}{2}} y^2 d_r dy = \frac{d_r}{12} b_r^3 \\ 
+J &s= \iint r^2 dA = \iint \left( y^2+z^2\right)  dA = I_y + I_z
+\end{align*}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\linewidth]{figure/rectangle_offset_area_momentum}
+	\caption{area momentum of rectangle cross-section with offset}
+	\label{fig:rectangleoffsetareamomentum}
+\end{figure}
+
+Area Momentum of Rectangle cross-section with offset:
+\begin{align*}
+I_y &= \iint_{-d_r-\frac{h_p}{2}}^{\frac{-h_p}{2}} z^2 dA = \iint_{-d_r-\frac{h_p}{2}}^{\frac{-h_p}{2}} z^2 b_r dz = \frac{b_r}{3} \left( \left( b_r+\frac{h_p}{2}\right)^3 - \left( \frac{h_p}{2}\right)^3   \right) \\
+I_z &= \iint_{\frac{-b_r}{2}}^{\frac{b_r}{2}} y^2 dA = \iint_{\frac{-b_r}{2}}^{\frac{b_r}{2}} y^2 d_r dy = \frac{d_r}{12} b_r^3 \\ 
+J &s= \iint r^2 dA = \iint \left( y^2+z^2\right)  dA = I_y + I_z
+\end{align*}
+
+\subsection{Rib comparison 1: horizontal beam}
+The test parameters are:
+\begin{itemize}
+	\item number of segmengts: 6
+	\item length of beam: 20
+	\item material: 201e3, 0.3
+	\item force: right-most, $ f_7 = (10,0,20) $
+	\item boundary: left-most node 1 fixed.
+\end{itemize}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/horizonal_beam_model}
+\caption{Horizontal beam model in Abaqus}
+\label{fig:horizonalbeammodel}
+\end{figure}
+
+
+\subsection{Rib rotation}
+ to be added.
+ 
+ \subsection{Variable rectangle cross section}
+ The simplest way to get direct stiffness matrix of variable rectangle (i.e. frustum) is:
+ \begin{lstlisting}[language = matlab]
+	 % see Code_Beam.m
+ 	% stiffness matrix, before integration. 
+ 	k = transpose(B) * D * B;
+ 	
+ 	% use ke to compare to the result in page 44 eq(3.53).
+ 	% see the output in Command Window. not that y^2 is Iz, z^2 is Iy.
+ 	ke = int(k, x, 0, l);
+ 	
+ 	% -------------------------------------------------------------------------
+ 	% for general case. the hx can use kesi * bx in the codes.
+ 	% define bx, hx at arbitrary location inside the volume.
+ 	syms a1 a2 a3 a4;
+ 	bx = a1 + a2 * x;
+ 	hx = a3 + a4 * x;
+ 	
+ 	% integrate over y first.
+ 	k = int(k, y, -bx/2, bx/2);
+ 	k = int(k, z, -hx/2, hx/2);
+ 	k = int(k, x, 0, l);
+ 	
+ 	matlabFunction(k, 'file', 'Beam_K_Interp');
+ \end{lstlisting}
+%\fi
+
+\subsection{I beam}
+\url{https://en.wikipedia.org/wiki/I-beam}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/wiki_I_beam}
+\caption{I beam}
+\label{fig:wikiibeam}
+\end{figure}
+
+An I-beam, also known as H-beam, W-beam (for "wide flange"), Universal Beam (UB), Rolled Steel Joist (RSJ), or double-T (especially in Polish, Bulgarian, Spanish, Italian and German), is a beam with an I or H-shaped cross-section. The horizontal elements of the "I" are known as flanges, while the vertical element is termed the "web". I-beams are usually made of structural steel and are used in construction and civil engineering.
+
+\subsubsection{Design for bending}
+From wiki, \url{https://en.wikipedia.org/wiki/I-beam}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/I_beam_why}
+\caption{The largest stresses ( $ \sigma_{xx} $ ) in a beam under bending are in the locations farthest from the neutral axis.}
+\label{fig:ibeamwhy}
+\end{figure}
+
+A beam under bending sees high stresses along the axial fibers that are farthest from the neutral axis. To prevent failure, most of the material in the beam must be located in these regions. Comparatively little material is needed in the area close to the neutral axis. This observation is the basis of the I-beam cross-section; the neutral axis runs along the center of the web which can be relatively thin and most of the material can be concentrated in the flanges.
+The ideal beam is the one with the least cross-sectional area (and hence requiring the least material) needed to achieve a given section modulus. \textbf{Since the section modulus depends on the value of the moment of inertia, an efficient beam must have most of its material located as far from the neutral axis as possible}. The farther a given amount of material is from the neutral axis, the larger is the section modulus and hence a larger bending moment can be resisted.
+When designing a symmetric I-beam to resist stresses due to bending the usual starting point is the required section modulus. If the allowable stress is  $ \sigma _{\mathrm {max} } $ and the maximum expected bending moment is $ M_{\mathrm  {max}} $, then the required section modulus is given by[3]
+	
+\begin{equation*}
+ S= \dfrac{M_{\mathrm {max}}}{\sigma _{\mathrm  {max}}}={\dfrac {I}{c}}
+\end{equation*}
+ 
+where $ I $ is the moment of inertia of the beam cross-section and $ c $ is the distance of the top of the beam from the neutral axis (see beam theory for more details).
+For a beam of cross-sectional area $ a $ and height $ h $, the ideal cross-section would have half the area at a distance $ h/2 $ above the cross-section and the other half at a distance $ h/2 $ below the cross-section[3] For this cross-section
+
+\begin{equation*}
+ I={\dfrac  {ah^{2}}{4}}~;~~S=0.5ah
+\end{equation*}
+
+However, these ideal conditions can never be achieved because material is needed in the web for physical reasons, including to resist buckling. For wide-flange beams, the section modulus is approximately
+
+$  S\approx 0.35ah $
+ 
+which is superior to that achieved by rectangular beams and circular beams.
+
+\subsection{T-beam}
+\subsubsection{Ellipse shape function}
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.3\linewidth]{figure/ellipse}
+\caption{ellipse}
+\label{fig:ellipse}
+\end{figure}
+
+The ellipse equation:
+
+\begin{equation*}
+\left( \dfrac{y}{a} \right) ^2 + \left( \dfrac{z}{b} \right) ^2 = 1
+\end{equation*}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/T_Beam_ellipse}
+\caption{T beam ellipse}
+\label{fig:tbeamellipse}
+\end{figure}
+
+In $ y'-z' $ coordinate system
+
+\begin{align*}
+y' &= y-\dfrac{b_2}{2} \\
+z' &= z
+\end{align*}
+
+\begin{equation*}
+\left( \dfrac{y'}{a} \right) ^2 + \left( \dfrac{z'}{b} \right) ^2 = \left( \dfrac{y-\dfrac{b_2}{2}}{a} \right) ^2 + \left( \dfrac{z}{b} \right) ^2 = 1
+\end{equation*}
+
+where 
+
+\begin{equation*}
+\begin{cases*}
+a = \dfrac{b_2-b_1}{2} \\
+b = \dfrac{h_1}{2}
+\end{cases*}
+\end{equation*}
+
+\subsubsection{Parabola shape function}
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/T_beam}
+\caption{T beam}
+\label{fig:tbeam}
+\end{figure}
+
+Let $ point(\dfrac{b_2}{2 a}, h_1) $ be the highest point in ellipsoid curve, so we have:
+\begin{equation*}
+\begin{cases}
+\dfrac{-b}{2 a} = \dfrac{b_2}{2} \\
+a \left( \dfrac{b_1}{2} \right) ^2 + b \left(  \dfrac{b_1}{2}\right) + c = 0  \\
+a \left( \dfrac{b_2}{2} \right) ^2 + b \left(  \dfrac{b_2}{2}\right) + c = \dfrac{h_1}{2}  \\
+\end{cases}
+\end{equation*}
+
+\begin{equation*}
+ \begin{cases}
+ a = \dfrac{-2 h_1 }{(b_1-b_2)^2} \\
+ b = \dfrac{2 b_2 h_1 }{(b_1-b_2)^2} \\
+ c = \dfrac{b_1^2 - 2 b_1 b_2}{(b_1-b_2)^2} \dfrac{h_1}{2}
+ \end{cases}
+\end{equation*}
+
+\subsubsection{moments}
+\begin{align*}
+h_{ur} &= a y^2 + b y + c;  \text{up-right side of parabola}. \\
+A &= 2 \int _0^{\frac{b_2}{2}} \int _{\frac{-h_2}{2}}^{\frac{h_2}{2}} dz dy - 2 \int _{\frac{b_1}{2}}^{\frac{b2}{2}} \int _{-h_{ur}}^{h_{ur}} dz dy; \\
+I_y &= 2 \int _0^{\frac{b_2}{2}} \int _{\frac{-h_2}{2}}^{\frac{h_2}{2}} z^2 dz dy - 2 \int _{\frac{b_1}{2}}^{\frac{b2}{2}} \int _{-h_{ur}}^{h_{ur}} z^2 dz dy; \\
+I_z &= 2 \int _0^{\frac{b_2}{2}} \int _{\frac{-h_2}{2}}^{\frac{h_2}{2}} y^2 dz dy - 2 \int _{\frac{b_1}{2}}^{\frac{b2}{2}} \int _{-h_{ur}}^{h_{ur}} y^2 dz dy; \\
+J_k &= 2 \int _0^{\frac{b_2}{2}} \int _{\frac{-h_2}{2}}^{\frac{h_2}{2}} r^2 dz dy - 2 \int _{\frac{b_1}{2}}^{\frac{b2}{2}} \int _{-h_{ur}}^{h_{ur}} r^2 dz dy; 
+\end{align*}
+
+\begin{lstlisting}[language=matlab]
+% Code for computing moments of inertia.
+% constant I beam of parabola.
+syms b1 h1 b2 h2;
+
+a = -2*h1 / (b2-b1)^2;
+b = 2*b2*h1 / (b2-b1)^2;
+c = (b1^2-2*b1*b2) / (b2-b1)^2 * h1 / 2;
+
+h_ur = a*y^2 + b*y + c; % up-right side.
+h_ul = a*y^2 - b*y + c; % up-left side.
+
+% constant I beam of parabola. method 1. 2 * because of on the right side.
+A = 2 * int(int(1, z, -h2/2, h2/2), y, 0, b2/2) - 2* int(int(1, z, -h_ur, h_ur), y, b1/2, b2/2);
+Iy = 2 * int(int(z^2, z, -h2/2, h2/2), y, 0, b2/2) - 2* int(int(z^2, z, -h_ur, h_ur), y, b1/2, b2/2);
+Iz = 2 * int(int(y^2, z, -h2/2, h2/2), y, 0, b2/2) - 2* int(int(y^2, z, -h_ur, h_ur), y, b1/2, b2/2);
+Jk = 2 * int(int(r^2, z, -h2/2, h2/2), y, 0, b2/2) - 2* int(int(r^2, z, -h_ur, h_ur), y, b1/2, b2/2);
+
+f= [A, Iy, Iz, Jk];
+
+matlabFunction(f, 'file', 'Beam_CrossSection_IPara');
+
+\end{lstlisting}
+
+\subsubsection{Volume}
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/T_beam_parabola}
+\caption{area and volume of parabola}
+\label{fig:tbeamparabola}
+\end{figure}
+
+\begin{align*}
+\mathrm{vol} &= \iiint dv = \int _0^l \left( \iint dA \right) dx = \int _0^l \left( b_2 h_2 - 4 A_0 \right)dx \\
+A_0 &= \int _\frac{b_1}{2}^\frac{b_2}{2}  \int _0^{\frac{h_x}{2}} dzdy \\
+A &= 4 \int _0^\frac{b_2}{2}  \int _0^{h_2} dzdy - 4 \int _\frac{b_1}{2}^\frac{b_2}{2}  \int _0^{h_x} dzdy
+\end{align*}
+
+where
+
+\begin{equation*}
+h_x = a y^2 + b y + c
+\end{equation*}
+
+\subsubsection{stiffness}
+\begin{equation*}
+\mathbf{keg} = \iiint \mathbf{k} dv = \iiint \mathbf{B}^T \mathbf{D} \mathbf{B} dv = \int_0^l \left(  \iint \mathbf{B}^T \mathbf{D} \mathbf{B} dA\right)  dx
+\end{equation*}
+
+\subsubsection{Optimal curve shape for T beam}
+The ellipse or parabola methods take the cross section curves to be one quater of an ellipse or parabola which are not the best curves for maximizing the potential of the cross section. What we want is let point $ \left( \frac{b_1}{2}, z\right) $ close to point $ \left(  \frac{b_1}{2}, h_1 \right) $.
+
+Let $ z=a y^2 + b y + c $.
+
+Point $ \left( \frac{b_1}{2}, 0\right) $ and $ \left( \frac{b_2}{2}, h_1\right) $ on the curve, so
+
+\begin{align*}
+a \left( \dfrac{b_1}{2} \right) ^2 + b \left(  \dfrac{b_1}{2}\right) + c = 0  \\
+a \left( \dfrac{b_2}{2} \right) ^2 + b \left(  \dfrac{b_2}{2}\right) + c = h_1  \\
+\end{align*}
+
+leads to
+
+\begin{align*}
+a &= a \\
+b &= \dfrac{2 h_1}{b_2-b_1} - \dfrac{b_1+b_2}{2} a \\
+c &= \dfrac{b_1 h_1}{b_1 - b_2} + \dfrac{b_1 b_2}{4} a
+\end{align*}
+
+We want point $ \left( y, z\right) $ close to point $ \left( \frac{b_1}{2}, h_1 \right) $. Therefore, we minimize the distance between them, i.e.
+
+\begin{align*}
+\min \Delta h^2 &= \left( y-\frac{b_1}{2} \right)^2 + \left( z - h_1 \right)^2 \\
+&= \left( y-\frac{b_1}{2} \right)^2 + \left( a y^2 + b y + c - h_1 \right)^2 \\
+&= a^2 y^4 + 2 a b y^3 + \left(b^2+1+2 a c -2 a h_1\right) y^2 + \left( 2 b c- 2 b h_1 - b_1\right) y +\dfrac{b_1^2 + 4 c^2- 8 c h_1 + 4 h_1^2}{4}
+\end{align*}
+
+\begin{lstlisting}[language=mathematica]
+Expand[(y - b1/2)^2 + (a y^2 + b y + c - h1) ^2]
+----
+b1^2/4 + c^2 - 2 c h1 + h1^2 - b1 y + 2 b c y - 2 b h1 y + y^2 + 
+b^2 y^2 + 2 a c y^2 - 2 a h1 y^2 + 2 a b y^3 + a^2 y^4
+\end{lstlisting}
+
+to get the minimum, let $ \dfrac{\partial \Delta h^2}{ \partial y} = 0 $
+
+\begin{equation} \label{eq: T_beam_minDis_y}
+\dfrac{\partial \Delta h^2}{ \partial y} = 4 a^2 y^3 + 6 a b y^2 + (2 + 2 b^2 + 4 a c - 4 a h_1) y - b_1 +2 b c - 2 b h_1= 0
+\end{equation}
+
+eq \ref{eq: T_beam_minDis_y} means the shortest distance at a specific value of variable $ a $ is at:
+
+\begin{align*}
+y_1 &= f(a); \\
+y_2 &= p(a) + q(a) i; \\
+y_3 &= r(a) + s(a) i \\
+\end{align*}
+
+which means:
+
+\begin{equation} \label{eq: minimum at a}
+\Delta h_{min}^2 = \left( f(a)-\frac{b_1}{2} \right)^2 + \left( z - h_1 \right)^2
+\end{equation}
+
+The above equation \ref{eq: minimum at a} means when given a value $ a $, the shortest distance is achieved at $ y_1 = f(a) $. As $ a $ is a variable, so "the shortest distance" varies when $ a $ changes. 
+
+\begin{align*}
+\min \Delta h_{min}^2 &= \left( f(a)-\frac{b_1}{2} \right)^2 + \left( z - h_1 \right)^2 \\
+&= \left( f(a)-\frac{b_1}{2} \right)^2 + \left( a f^2(a) + b f(a) + c - h_1 \right)^2
+\end{align*}
+
+The "minimum" of the "the shortest distance" with regard to $ a $ can be solved by letting $ \dfrac{\partial \Delta h_{min}^2}{ \partial a} = 0 $.
+
+If I am right, then two root finding are required, the first one is to find $ y_1 = f(a) $, then solve $ \dfrac{\partial \Delta h_{min}^2}{ \partial a} = 0 $ to find the final a. I can't figure out how to do it currently... 
+
+\subsubsection{Variable T beam}
+As the optimum case is hard to solve, I'll use point $ \frac{b_2}{2}, h_1 $ as the highest to get the curve. The ellipse has better performance over parabola, but the square makes computation more complex and hard to proceed, so in the codes, parabola by direct method (not optimal) have highest priority.
+
+Once the optimum curve is skipped, the curve can be fully decided by $ (b_{1x}, h_{1x}, b_{2x}, h_{2x}) $. Let $ (b_{1i}, h_{1i}, b_{2i}, h_{2i}) $ be shape parameters at node $ i $ and $ (b_{1j}, h_{1j}, b_{2j}, h_{2j}) $ at node $ j $. The interpolation scheme is assumed to be linear, so at location $ x $, the shape function is:
+
+\begin{align*}
+b_{1x} &= b_{1i} + \left( b_{1j}-b_{1i}\right)  \dfrac{x}{l} \\
+h_{1x} &= h_{1i} + \left( h_{1j}-h_{1i}\right)  \dfrac{x}{l} \\
+b_{2x} &= b_{2i} + \left( b_{2j}-b_{2i}\right)  \dfrac{x}{l} \\
+h_{2x} &= h_{2i} + \left( h_{2j}-h_{2i}\right)  \dfrac{x}{l} \\
+\end{align*}
+
+\begin{align*}
+\begin{cases}
+a_x = \dfrac{-2 h_{1x} }{(b_{1x}-b_{2x})^2} \\
+b_x = \dfrac{2 b_{2x} h_{1x} }{(b_{1x}-b_{2x})^2} \\
+c_x = \dfrac{b_{1x}^2 - 2 b_{1x} b_{2x}}{(b_{1x}-b_{2x})^2} \dfrac{h_{1x}}{2}\\
+z_x = a_x y^2 + b_x y + c_x
+\end{cases}~~\mathrm{for~parabola} ~~~~ & \begin{cases*}
+\left( \dfrac{2y-b_2}{b_2-b_1} \right) ^2 + \left( \dfrac{z}{h_1} \right) ^2 = 1 \\
+z_x = h_{1x} \sqrt{1- \left( \dfrac{2y-b_{2x}}{b_{2x}-b_{1x}} \right) ^2}
+\end{cases*}~~\mathrm{for~ellipse}
+\end{align*}
+
+\begin{align*}
+\mathrm{vol} &= \iiint dv = \int _0^l \left( \iint dA_x \right) dx = \int _0^l \left( b_{2x} h_{2x} - 2 A_{0x} \right)dx \\
+A_{0x} &= \int _\frac{b_{1x}}{2}^\frac{b_{2x}}{2} \int _0^{z_x} dzdy
+\end{align*}
+
+\begin{equation*}
+\mathbf{keg} = \iiint \mathbf{k} dv = \iiint \mathbf{B}^T \mathbf{D} \mathbf{B} dv = \int_0^l \left(  \iint \mathbf{B}^T \mathbf{D} \mathbf{B} dA_x \right) dx
+\end{equation*}
+
+As 
+
+\begin{equation*}
+A_x =  b_{2x} h_{2x} - 2 A_{0x}
+\end{equation*}
+
+\begin{equation*}
+\iint \mathbf{B}^T \mathbf{D} \mathbf{B} dA_x = \int _\frac{-b_{2x}}{2}^\frac{b_{2x}}{2} \int _\frac{-h_{2x}}{2}^\frac{h_{2x}}{2} \mathbf{B}^T \mathbf{D} \mathbf{B} dydz - 2 \iint \mathbf{B}^T \mathbf{D} \mathbf{B} dA_{0x} = \int _\frac{-b_{2x}}{2}^\frac{b_{2x}}{2} \int _\frac{-h_{2x}}{2}^\frac{h_{2x}}{2} \mathbf{B}^T \mathbf{D} \mathbf{B} dydz - 2 \int _\frac{b_{1x}}{2}^\frac{b_{2x}}{2} \int _{-z_x}^{z_x} \mathbf{B}^T \mathbf{D} \mathbf{B} dz dy
+\end{equation*}
+
+\begin{align*}
+\mathbf{keg} &= \iiint \mathbf{k} dv = \iiint \mathbf{B}^T \mathbf{D} \mathbf{B} dv = \int_0^l \left(  \iint \mathbf{B}^T \mathbf{D} \mathbf{B} dA_x \right) dx \\
+&= \int_0^l \left( \int _\frac{-b_{2x}}{2}^\frac{b_{2x}}{2} \int _\frac{-h_{2x}}{2}^\frac{h_{2x}}{2} \mathbf{B}^T \mathbf{D} \mathbf{B} dzdy - 2  \int _\frac{b_{1x}}{2}^\frac{b_{2x}}{2} \int _{-z_x}^{z_x} \mathbf{B}^T \mathbf{D} \mathbf{B} dz dy \right) dx
+\end{align*}
+
+\subsubsection{Symbolic integration}
+The equation above cannot be integrated. So approximate method will be adopted.
+
+\subsubsection{Gauss quadrature for rib}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/gauss_quadrature}
+\caption{gauss quadrature.}
+\label{fig:gaussquadrature}
+\end{figure}
+
+An integral over $ [a, b] $ must be changed into an integral over $ [-1, 1] $ before applying the Gaussian quadrature rule. This change of interval can be done in the following way:
+
+\begin{equation*}
+ \int _{a}^{b}f(x)\,dx={\frac {b-a}{2}}\int _{-1}^{1}f\left({\frac {b-a}{2}}x+{\frac {a+b}{2}}\right)\,dx
+\end{equation*}
+
+Applying the Gaussian quadrature rule then results in the following approximation:
+
+\begin{equation*}
+ \int _{a}^{b}f(x)\,dx\approx {\frac {b-a}{2}}\sum _{i=1}^{n}w_{i}f\left({\frac {b-a}{2}}x_{i}+{\frac {a+b}{2}}\right)
+\end{equation*}
+
+\subsubsection{direct integration}
+The integration of stiffness matrix can also be break into small pieces in order to get accurate results. It is shown as following:
+
+\begin{equation*}
+\int _{a}^{b}f(x)\,dx=\sum_{i=1}^{n} f(x_i) \Delta x
+\end{equation*}
+
+\subsubsection{Comparison of Average method, direct method and gauss quadrature method}
+\begin{lstlisting}[language = matlab]
+
+function Run_Test_IPara_Beam()
+
+% test constant I beam.
+
+clear; clc; close;
+
+b1i = 1; b2i = 2;
+h1i = 1; h2i = 2;
+
+b1j = 1; b2j = 2;
+h1j = 2; h2j = 4;
+
+E = 2000; G = 800;
+l = 0.5; l1 =0; l2 = l+ l1;
+
+%% method 1: use average to compute stiffness matrix.
+kel = Beam_kel_cIPara(E, G, (b1i+b1j)/2, (b2i+b2j)/2, (h1i+h1j)/2, (h2i+h2j)/2, l);
+
+%% method 2: gauss quadrature.
+nPoints = 3;
+[w, L] = Gauss(nPoints);
+
+k = zeros(12,12);
+step = l / nPoints;
+for i= 1:length(w)
+
+% left end of each segment.
+b1_l = b1i + (b1j-b1i) * step*(i-1) / l; b2_l = b2i + (b2j-b2i) * step*(i-1) / l;
+h1_l = h1i + (h1j-h1i) * step*(i-1) / l; h2_l = h2i + (h2j-h2i) * step*(i-1) / l;
+
+% right end of each segment.
+b1_r = b1i + (b1j-b1i) * step*i / l; b2_r = b2i + (b2j-b2i) * step*i / l;
+h1_r = h1i + (h1j-h1i) * step*i / l; h2_r = h2i + (h2j-h2i) * step*i / l;
+
+b1_ = (b1_l+b1_r) / 2;  b2_ = (b2_l+b2_r) / 2;
+h1_ = (h1_l+h1_r) / 2;  h2_ = (h2_l+h2_r) / 2;
+
+s = (l2-l1)/2 * L(i) + (l2+l1)/2;
+k = k + w(i)*Beam_dkeldx_IPara(E,G,b1_,b2_,h1_,h2_,l, s) * (l2-l1)/2;
+end
+
+%% method 3: direct integration.
+k2 = zeros(12,12);
+nSteps = 5;
+step = l / nSteps;
+for i= 1:nSteps
+
+% left end of each segment.
+b1_l = b1i + (b1j-b1i) * step*(i-1) / l; b2_l = b2i + (b2j-b2i) * step*(i-1) / l;
+h1_l = h1i + (h1j-h1i) * step*(i-1) / l; h2_l = h2i + (h2j-h2i) * step*(i-1) / l;
+
+% right end of each segment.
+b1_r = b1i + (b1j-b1i) * step*i / l; b2_r = b2i + (b2j-b2i) * step*i / l;
+h1_r = h1i + (h1j-h1i) * step*i / l; h2_r = h2i + (h2j-h2i) * step*i / l;
+
+b1_ = (b1_l+b1_r) / 2;  b2_ = (b2_l+b2_r) / 2;
+h1_ = (h1_l+h1_r) / 2;  h2_ = (h2_l+h2_r) / 2;
+
+x = i*step - step / 2;
+k2 = k2 + Beam_dkeldx_IPara(E,G,b1_,b2_,h1_,h2_,l, x) * step;
+end
+
+end
+
+function [w, L] = Gauss(n)
+if n == 1
+w = 2;
+L = 0;
+elseif n == 2
+w = [1,1];
+L = [-sqrt(1/3), sqrt(1/3)];
+elseif n == 3
+w = [5/9, 8/9, 5/9];
+L = [-sqrt(3/5), 0, sqrt(3/5)];
+elseif n == 4
+w = [ (18-sqrt(30))/36, (18+sqrt(30))/36, (18+sqrt(30))/36, (18-sqrt(30))/36];
+L = [-sqrt(3/7+2/7*sqrt(5/6)), -sqrt(3/7-2/7*sqrt(5/6)), sqrt(3/7-2/7*sqrt(5/6)), sqrt(3/7+2/7*sqrt(5/6))];
+elseif n == 5
+w = [(322-13*sqrt(70))/900, (322+13*sqrt(70))/900, 128/225, (322+13*sqrt(70))/900, (322-13*sqrt(70))/900];
+L = [-sqrt(5+2*sqrt(10/7)) / 3, -sqrt(5-2*sqrt(10/7)) / 3, 0, sqrt(5-2*sqrt(10/7)) / 3, sqrt(5+2*sqrt(10/7)) / 3];
+end
+end
+\end{lstlisting}
+
+\subsection{Combined rectangles}
+\begin{lstlisting}[language = matlab]
+% ---- cICombine ----------------------------------------------------------
+syms b1 h1 b2 h2;
+A = b1 * h1/2 + b2 * (h2-h1)/2;
+Iy = b1 * h1^3 / 12 + b2 * (h2^3-h1^3) / 12;
+Iz = h1 * b1^3 / 12 + h2 * (b2^3-b1^3) / 12;
+Jk = Iy + Iz;
+\end{lstlisting}
+
+\begin{lstlisting}[language = matlab]
+% ---- vICombine ----------------------------------------------------------
+syms b1i b2i h1i h2i b1j b2j h1j h2j;
+b1x = b1i + (b1j-b1i) * x / l;
+b2x = b2i + (b2j-b2i) * x / l;
+h1x = h1i + (h1j-h1i) * x / l;
+h2x = h2i + (h2j-h2i) * x / l;
+
+% integrate only a quater of the I beam. on the up-right corner.
+% divide into two parts, top and mid
+int_kz_top = int(k, z, h1x/2, h2x/2);
+int_kzy_top = int(int_kz_top, y, 0, b2x/2);
+int_kz_mid = int(k, z, 0, h1x/2);
+int_kzy_mid = int(int_kz_mid, y, 0, b1x/2);
+
+int_kzy = int_kzy_top + int_kzy_mid;
+int_kzyx = 4*int(int_kzy, x, 0, l);
+
+matlabFunction(int_kzyx, 'file', 'Beam_kel_vICombine');
+\end{lstlisting}
+
+\subsection{superellipse}
+\begin{equation}\label{key}
+(\dfrac{y}{a})^r + (\dfrac{z}{b}) ^ r = 1
+\end{equation}
+
+\begin{equation}
+\begin{split}
+A &= 4 b \int _0^a\int_0^{\left(1-\left(\frac{y-\frac{\text{b2}}{2}}{a}\right)^r\right)^{\frac{1}{r}}} dz \, dy \\
+\text{Iy} &= 4 b \int _0^a\int _0^{\left(1-\left(\frac{z}{b}\right)^r\right)^{\frac{1}{r}}}z{}^{\wedge}2 dzdy \\
+\text{Iz} &= 4 b \int _0^a\int _0^{\left(1-\left(\frac{y-\frac{\text{b2}}{2}}{a}\right)^r\right)^{\frac{1}{r}}}y{}^{\wedge}2dzdy
+\end{split}
+\end{equation}
+
+To solve the integration for superellipse, numerical method is adopted.
+
+Firstly, split the superellipse curve into $ n $ segments,:
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/superellipse_segnemts}
+\caption{superellipse of order 10 divided into 10 segments}
+\label{fig:superellipsesegnemts}
+\end{figure}
+
+Secondly, once the superellipse is divided into pieces, the moments of each strip can be coalculated.
+
+Thirdly, the whole domain of rib can be regarded as a combination of small ribs of constant cross-section to approximately represent a variable cross-section I beam with superellipse profile. 
+
+The reference to verify the accuracy of computing variable cross-section of superellipse is a combined of rectangles.

@@ -1,0 +1,89 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\chapter{Plate}
+
+\section{Dimension of plate}
+% 
+\begin{table}[h]
+\begin{tabular}{|p{3.5cm}|p{3.5cm}|p{3.5cm}|p{3.5cm}|}
+\hline
+thick & thin & very thin \\ 
+\hline
+Length / thickness & $ \sim 5 $ to $ \sim 10 $ & $ \sim 10 $ to $ \sim 100 $ & $ > 100 $ \\ 
+\hline
+physical characteristics & transverse shear deformations $ \varepsilon_{13} \neq 0 $ & negligible transverse shear deformations $ \varepsilon_{13} \approx 0 $ & geometrically non-linear \\ 
+\hline 
+\end{tabular} 
+\end{table}
+
+\section{positive directions}
+The sign convention used in the plate section is defined in this section.
+Notice that unlike some publications on this subject, the loading term $ p(x,y) $ points to the same direction as the z-axis.
+Please refer to the classical plate theory for more details.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/plate_force_positive_direction}
+\caption{The loading $ p $ and deflection $ w $ in the z direction indicated are positive.}
+\label{fig:plate_force_positive_direction}
+\end{figure}
+
+For the sign of moment resultants, a moment caused by a positive stress with a positive arm is considered positive and the subscript of the stress is used to denote this moment.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/plate_moment_positive_direction}
+\caption{}
+\label{fig:plate_moment_positive_direction}
+\end{figure}
+
+Therefore, positive $ M_x $ points toward the $ y $ direction under the right-hand rule.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/plate_bending_positive_direction}
+\caption{Positive directions for bending moments.}
+\label{fig:plate_bending_positive_direction}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{figures/plate_shear_force_positive_direction}
+\caption{Positive directions for shear forces.}
+\label{fig:plate_shear_force_positive_direction}
+\end{figure}
+
+When a flat plate is subjected to both inplane and transverse or normal loads as shown
+in Figure \ref{fig: inplane transverse loads in plane} any point inside the plate can have displacement components $ u, v $, and
+$ w $ parallel to $ x, y $, and $ z $ axes, respectively. In the small deflection (or linear) theory of thin plates, the transverse deflection $ w $ is uncoupled from the inplane deflections u and v. Consequently, the stiffness matrices for the inplane and transverse deflections are also uncoupled and they can be calculated independently. Thus, if a plate is subjected to inplane loads only, it will undergo deformation in its plane only. In this case, the plate is said to be under the action of "membrane" forces. Similarly, if the plate is subjected to transverse loads (and/or bending moments), any point inside the plate experiences
+essentially a lateral displacement $ w $ (inplane displacements $ u $ and $ v $, are also experienced because of the rotation of the plate element). In this case. the plate is said to be under the action of bending forces. The inplane and bending analysis of plates is considered in this chapter. If the plate elements are used for the analysis of three-dimensional structures. such as folded plate structures, both inplane and bending actions have to be considered in the development of element properties. This aspect of coupling the membrane and bending actions of a plate element is also considered in this chapter.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figures/plate_inplane_transverse_loads}
+\caption{Inplane and transverse loads in a plane}
+\label{fig: inplane transverse loads in plane}
+\end{figure}
+
+% Pascal triangles.
+The CST and LST triangles are variations of the Pascal triangles as shown bellow:
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figures/plate_variations_pascal_triangles}
+\caption{variations of the Pascal triangles}
+\label{fig:plate_variations_pascal_triangles}
+\end{figure}
+
+\newpage
+
+% CST
+\input{body/plate_CST}
+
+% LST
+\input{body/plate_LST}
+
+% DKT
+\input{body/plate_DKT}
+
+\input{body/Section_shell_transform}

@@ -1,0 +1,149 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\section{General rib computation}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/local_axis_system_of_stiffener}
+\caption{Local axis system of the stiffener, placed within the shell element.}
+\label{fig:localaxissystemofstiffener}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/reference_axis_of_stiffener}
+\caption{A stiffened plate showing the reference axis of the stiffener.}
+\label{fig:referenceaxisofstiffener}
+\end{figure}
+
+So, $ [T_s] $ matrix can be written as:
+\begin{equation}
+[T_s] = \begin{bmatrix}
+\cos^2\phi & \sin^2 \phi & \frac{1}{2} \sin 2\phi & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & \cos^2 \phi & \sin^2 \phi & \frac{1}{2} \sin 2\phi & \frac{1}{2} \sin 2\phi \\ 
+0 & 0 & 0 & -\frac{1}{2} \sin 2\phi & \frac{1}{2} \sin 2\phi & -\sin^2 \phi & \cos^2 \phi
+\end{bmatrix}
+\end{equation}
+
+\begin{lstlisting}[language=c++]
+void Build_Ts(Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen::Vector3d pr1, Eigen::Vector3d pr2, Eigen::Matrix<double, 3, 7> &Ts)
+// p1, p2 are 2 vertices defining local x direction in plate.
+// pr1, pr2 are 2 vertices defining 2 end points of a rib.
+// the angle between the local x direction and rib is computed as:
+{
+	double phi = std::acos((p2 - p1).dot(pr2 - pr1) / (p2 - p1).norm() / (pr2 - pr1).norm());
+	double cosx2 = std::cos(phi); cosx2 *= cosx2;
+	double sinx2 = std::sin(phi); sinx2 *= sinx2;
+	double sin2x = std::sin(2.0*phi);
+	
+	Ts << cosx2, sinx2, 0.5*sin2x, 0.0, 0.0, 0.0, 0.0,
+			0.0, 0.0, 0.0, cosx2, sinx2, 0.5*sin2x, 0.5*sin2x,
+			0.0, 0.0, 0.0, -0.5*sin2x, 0.5*sin2x, -sinx2, cosx2;
+}
+\end{lstlisting}
+
+The stress strain relationship of the stiffener in the local axis system can be expressed as
+\begin{equation}
+\{\bar{\sigma}_s\} = [D_s]\{\epsilon_s\},
+\end{equation}
+
+where 
+
+\begin{equation}
+\{\bar{\sigma}_s\} = \{ N_{ss}~~M_{ss}~~T_{ss}\}
+\end{equation}
+
+and 
+
+\begin{equation}
+[D_s] = \begin{bmatrix}
+E_s A_s & E_s S_s & 0 \\ 
+E_s S_s & E_s I_s & 0 \\ 
+0 & 0 & G_s J_s
+\end{bmatrix} 
+\end{equation}
+
+\begin{lstlisting}[language=c++]
+void Build_Ds(double hp, double br, double dr, double Er, double nur, Eigen::Matrix3d &Ds)
+// the rib is under plate, so moments of inertia should be computed with offset.
+// hp stands for thickness of plate, br and dr are corresponding to bs and ds in the document.
+// Ar, Sr, Ir and Jr are corresponding to As Ss Is and Js
+{
+	double Ar, Sr, Ir, Iz, Jr;
+	double Gr = Er / 2.0 / (1.0 + nur); // shear modulus.
+	Beam::CrossSection_Rect_WithPlate(hp, br, dr, Ar, Sr, Ir, Iz, Jr);
+	
+	Ds << Er*Ar, Er*Sr, 0.0,
+			Er*Sr, Er*Ir, 0.0,
+			0.0, 0.0, Gr*Jr;
+}
+void Beam::CrossSection_Rect_WithPlate(double hp, double br, double dr, double &Ar, double &Sr, double &Ir, double &Iz, double &Jr)
+// br: beam thickness in y direction
+// dr: beam height in z direction
+// this version is for beams attached to plates and use plate mid - surface as reference.
+// see "crossSection_properties.docx"
+{
+	// == == == == == physical quantities == == == == ==
+	Ar = br*dr;                           // beam area
+	
+	Sr = br / 2.0 * ((hp / 2.0 + dr) *(hp / 2.0 + dr) - hp*hp/4.0);  // first moment
+	Ir = br / 3.0 * ((dr + hp / 2.0) *(dr + hp / 2.0)*(dr + hp / 2.0) - hp*hp*hp/8.0); // second moments of area, is Iy actually
+	Iz = dr*br*br*br / 12.0; // second moments of area
+	Jr = Ir + Iz; // polar moment of inertia
+}
+\end{lstlisting}
+
+where $ N_{ss}, M_{ss}, T_{ss} $ are the axial force, bending moment and torsion in the stiffener. $ E_s $ is the modulus of the elasticity of the the stiffener material, $ A_s $ is the cross-sectional area of the stiffener. $ S_s $ is the first moment of the stiffener cross-sectional area about the reference axis(i.e. the plate middle surface) as shown in Fig. \ref{fig:referenceaxisofstiffener}. $ I_s $ is the second moment of the stiffener cross-sectional area about reference axis, $ G_s $ is the modulus of rigidity and $ J_s $ is the polar moment of inertia of the stiffener cross-sectional area.
+
+\begin{equation}\label{key}
+[k]_s = \int_{L_s} [T]^\mathrm{T} [B_s]^\mathrm{T}[T_s]^\mathrm{T}[D_s][T_s][B_s][T] \mathrm{d} \xi
+\end{equation}
+
+\begin{lstlisting}[language=c++]
+void Plate3::Compute_Transform(Eigen::Vector3d p1, Eigen::Vector3d p2, Eigen::Vector3d p3, Eigen::Matrix3d &T, Eigen::Matrix3d &xel)
+// From <Aalborg_Univ_Plates_and_Shells.pdf> p41
+// the three nodes are ordered as(i, j, k)
+// the x axis is aligned with direction of i->j
+{
+	T.col(0) = p2 - p1;
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << T.col(0) << std::endl;	
+#endif
+	Eigen::Vector3d v2_t = p3 - p1;
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << v2_t << std::endl;
+#endif
+	T.col(2) = T.col(0).cross(v2_t);
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << T.col(2) << std::endl;
+#endif
+	T.col(1) = T.col(2).cross(T.col(0));
+#ifdef USE_DEBUG_CONSOLE
+	std::cout << T.col(1) << std::endl;
+#endif
+
+	T.col(0).normalize();
+	T.col(1).normalize();
+	T.col(2).normalize();
+	
+	/*xel.row(0).setZero();
+	xel.row(1) = p2 - p1;
+	xel.row(2) = p3 - p1;*/
+	
+	xel.row(0) = p1;
+	xel.row(1) = p2;
+	xel.row(2) = p3;
+	
+	xel *= T;
+}
+\end{lstlisting}
+
+\subsection{Test case triangle:}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{figure/test_triangle}
+\caption{test case triangle}
+\label{fig:testtriangle}
+\end{figure}
+
+
+

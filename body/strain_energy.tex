@@ -1,0 +1,230 @@
+% !Mode:: "TeX:UTF-8"	% read in as utf8 file.
+
+\section{Strain energy}
+\colorbox{yellow}{"Stress Constrained Thickness Optimization for Shell Object Fabrication.pdf"}
+
+The static equilibrium constraint is absorbed into the derivative of $ \frac{\partial \sigma _v}{\partial t}(t_i^k) $, using the sensitivity analysis technique [AFB12]. Specifically, we first simplify the static equilibrium for the whole system as follows:
+
+\begin{equation*}
+\mathbf{K}_{sys} \mathbf{U} = \mathbf{F}
+\end{equation*}
+
+where the original system stiffness matrix is denoted as $ \mathbf{K}_{sys} $, and the displacement for each node is represented as $ \mathbf{U} $. The sensitivity analysis technique requires the derivatives to variable parameters $ t_i $ on both sides:
+
+\begin{equation*}
+\dfrac{\partial \mathbf{F}}{\partial t_i} = \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U} + \mathbf{K}_{sys} \dfrac{\partial \mathbf{U}}{\partial t_i}
+\end{equation*}
+
+Since external force is constant, its derivative to parameter $ t_i $ is 0. Therefore, we have:
+
+\begin{equation*}
+\dfrac{\partial \mathbf{U}}{\partial t_i} = -\mathbf{K}_{sys}^{-1} \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U}
+\end{equation*}
+
+There we have: 
+
+\begin{equation*}
+\dfrac{\partial \mathbf{U}^T}{\partial t_i} = \left( -\mathbf{K}_{sys}^{-1} \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U}\right) ^T =  -\mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}^T}{\partial t_i} \mathbf{K}_{sys}^{-T} = -\mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{K}_{sys}^{-1}
+\end{equation*}
+
+The strain energy is defined as:
+
+\begin{equation*}
+\sigma = \dfrac{1}{2} \mathbf{U^T} \mathbf{K}_{sys} \mathbf{U}
+\end{equation*}
+
+and its gradient:
+
+\begin{align*}
+\dfrac{\partial \sigma}{\partial t_i} &= \dfrac{1}{2} \dfrac{\partial \left( \mathbf{U^T} \mathbf{K}_{sys} \mathbf{U} \right) }{\partial t_i} = \dfrac{1}{2} \left( \dfrac{\partial \mathbf{U}^T}{\partial t_i} \mathbf{K}_{sys} \mathbf{U} + \mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U} + \mathbf{U}^T \mathbf{K}_{sys} \dfrac{\partial \mathbf{U}}{\partial t_i} \right) \\
+&= \dfrac{1}{2} \left(  -\mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{K}_{sys}^{-1} \mathbf{K}_{sys} \mathbf{U} + \mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U} + \mathbf{U}^T \mathbf{K} \left( -\mathbf{K}_{sys}^{-1} \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U} \right)  \right)  \\
+&= \dfrac{1}{2} \left( -\mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U} + \mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U} -\mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U}  \right)  \\
+&= -\dfrac{1}{2} \mathbf{U}^T \dfrac{\partial \mathbf{K}_{sys}}{\partial t_i} \mathbf{U}
+\end{align*}
+
+\subsection{Vertex flow}
+The input mesh for vertex flow is the reconstructed quad mesh as shown in fig. \ref{fig:botanicori1}. The applied forces are pressure on the mesh and are redistributed to get nodal forces. The bottom boundary edge is fixed to constrain rigid degrees.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/botanic_ori}
+\caption{reference model}
+\label{fig:botanicori1}
+\end{figure}
+
+\subsubsection{Constrain method 1}
+In this case, the force and boundary are illustrated in above section. The minimum strain energy is computed as
+
+\begin{equation*}
+\sigma_v = \dfrac{1}{2} \mathbf{U^T} \mathbf{K}_{sys} \mathbf{U}
+\end{equation*}
+
+The only constrain used in this case is the offsets between the input mesh and the deformed mesh. Specifically, it is:
+
+\begin{equation*}
+a_i = |V_i - V_i^*| < 0.5
+\end{equation*}
+
+Note the bounding box of the mesh is $ 100 \times 100 $. The deformed mesh is shown in \ref{fig:botanicconstraindefoem}. The optimization result seems to be expanding or shrinking instead of moving in tangent plane. The result indicates this way or this way alone of constraint is not working.
+
+\begin{figure}[htbp]
+	\centering
+	\begin{minipage}{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/botanic_ori}
+		\caption{reference model}\label{fig:botanicori}
+	\end{minipage}
+	\begin{minipage}{0.4\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/botanic_constrain_defoem}
+		\caption{optimized botanic with reference to input mesh(yellow is deformed mesh)}\label{fig:botanicconstraindefoem}
+	\end{minipage}
+	\vspace{\baselineskip}
+\end{figure}
+
+For method 1, two more constraints are added:
+
+\begin{equation*}
+\begin{cases}
+	a_i & = |\vec{n}_1 \cdot \vec{t}_1| < 0.2,~~ \mathrm{on~tangent~plane} \\
+	b_i &= |V_i - V_i^*| < 0.5,~~\mathrm{not~far~away~from~old~vertex} \\
+	c_i &= \dot( \vec{n}_p, \vec{n}_p^{'}) > 0,~~\mathrm{face~norm~holds~same~direction.}	
+\end{cases}
+\end{equation*}
+
+\begin{figure}[htbp]
+	\centering
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/it1}
+		\caption{original}\label{fig:it0}
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/it2}
+		\caption{it1}\label{fig:it2}
+	\end{minipage}
+	\vspace{\baselineskip}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/it3}
+		\caption{it2}\label{fig:it3}
+	\end{minipage}
+	\vspace{\baselineskip}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/it4}
+		\caption{it3}\label{fig:it4}
+	\end{minipage}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/it5}
+		\caption{it4}\label{fig:it5}
+	\end{minipage}
+	\vspace{\baselineskip}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figure/it6}
+		\caption{it5}\label{fig:it6}
+	\end{minipage}
+	\vspace{\baselineskip}
+\end{figure}
+
+There are some elements overlapping others, which needs more constraint to peanalize this movement.
+
+\subsubsection{Constrain method 2}
+Dr You suggested to use strain energy $ \sigma \varepsilon $ inside the plate to guide the flow of vertices. 
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.3\linewidth]{figure/strainDensityDir}
+\caption{direction of strain energy inside element (For illustration only) (closed curves in element are to represent isolines of strain energy density)}
+\label{fig:straindensitydir}
+\end{figure}
+
+This method is density guided search method (haven't been implemented).
+
+\subsubsection{Constrain method 3}
+After method 1, Wei and I had a discussion on how to constrain vertices so that they can move in tangent plane. We suppose to do it in this way:
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.3\linewidth]{figure/vertexFlowTop}
+	\caption{vertex connectivity at node 1}
+	\label{fig:vertexflowtop}
+\end{figure}
+
+Let $ n_1 $ be a vertex index of a node of the mesh, it connects to $ n_2, n_3, n_4, n_5 $ in a general case. The variables are defined as offsets $ \delta_1, \delta_2, \delta_3, \delta_4 $ along corresponding edges $ e_{12}, e_{13}, e_{14}, e_{15} $. Therefore the overall displacement of node 1 can be defined as:
+
+\begin{equation*}
+p_1^{'} = p_1 + \vec{e}_{12} \delta_1 + \vec{e}_{13} \delta_2 + \vec{e}_{14} \delta_3 + \vec{e}_{15} \delta_4
+\end{equation*}
+
+The constraint in this method will be 
+
+\begin{equation*}
+0<\delta_1 < \varepsilon,~ 0<\delta_2 < \varepsilon,~ 0<\delta_3 < \varepsilon,~0<\delta_4 < \varepsilon
+\end{equation*}
+
+which means deformations along all directions can not exceed a given $ \varepsilon $.
+
+The objective function still be:
+
+\begin{equation*}
+\sigma_v = \dfrac{1}{2} \mathbf{U^T} \mathbf{K}_{sys} \mathbf{U}
+\end{equation*}
+
+This method is direct search in the variable domain to find solution satisfying all constraints (haven't been implemented).
+
+Figure \ref{fig:constrtangentplane} demonstrates a constraint to make vertex moving on the tangent plane. $ P_1 $ is vertex before deformation, $ P_1^{'} $ is after deformation. The vector $ t_1 = P_1^{'} - P_1 $. Let vertex normal at $ P_1 $ be $ n_1 $, the constraint can be written as:
+
+\begin{equation*}
+\vec{n}_1 \cdot \vec{t}_1 = 0
+\end{equation*}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/constrTangentPlane}
+\caption{tangent plane constrain}
+\label{fig:constrtangentplane}
+\end{figure}
+
+After adding this constraint, the result is shown:
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/constrTangentPlane_method3}
+\caption{adding on tangent plane constraint in method 3}
+\label{fig:constrtangentplanemethod3}
+\end{figure}
+
+In fig. \ref{fig:constrtangentplanemethod3}, the small yellow lines are normals at vertex before averaged on undeformed mesh. The blue mesh under white edges is output mesh of optimization. This result means vertices are moving inside along normal direction which is caused by $ \vec{n}_1 \cdot \vec{t}_1 = -1~~(180 degree ) $.
+
+By modifying the constraint from 
+
+\begin{equation*}
+	\vec{n}_1 \cdot \vec{t}_1 = 0 \to  |\vec{n}_1 \cdot \vec{t}_1| = 0
+\end{equation*}
+
+The result mesh is almost the same as the input mesh except one place shown in fig \ref{fig:constrtangentplanemethod3modified}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/constrTangentPlane_method3_modified}
+\caption{constrain on tangent plane modified(green is deformed, white is original)}
+\label{fig:constrtangentplanemethod3modified}
+\end{figure}
+
+This result indicates the condition of $ |\vec{n}_1 \cdot \vec{t}_1| = 0 $ is too strong so that barely any deformation is allowed ( In fig \ref{fig:constrtangentplanemethod3modified}, there is only one distictive offset in the whole domain as shown). So in the next step, the constraint will be relaxed into:
+
+\begin{equation*}
+	|\vec{n}_1 \cdot \vec{t}_1| < \varepsilon
+\end{equation*}
+
+Now the result becomes:
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.5\linewidth]{figure/constrTangentPlane_method3_modified2}
+\caption{further modified tagent plane constrain (green is deformed, blue is original mesh)}
+\label{fig:constrtangentplanemethod3modified2}
+\end{figure}
